@@ -21,19 +21,3 @@ def train_test_split(data, test_size: float):
     train_df = copy_df.drop(selected_indices)
 
     return train_df, test_df
-
-
-def check_purity(labels) -> bool:
-    """
-    Evaluates if the input data is pure.
-
-    :param labels: labels for the provided input data (2D Numpy array).
-    :return: boolean for purity of the data.
-    """
-    unique_classes = np.unique(labels)
-
-    # If there is one class the data is pure, so return True:
-    if len(unique_classes) == 1:
-        return True
-
-    return False

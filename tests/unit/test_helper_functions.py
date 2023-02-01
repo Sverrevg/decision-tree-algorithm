@@ -2,7 +2,8 @@ from unittest import TestCase
 
 import pandas as pd
 
-from src.helper_functions import train_test_split, check_purity
+from src.decision_tree import check_purity
+from src.helper_functions import train_test_split
 
 
 class HelperFunctionsTestSuite(TestCase):

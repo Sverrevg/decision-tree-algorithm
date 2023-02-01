@@ -1,15 +1,13 @@
-def train_tree(data, y, target_factor, max_depth=None, min_samples_split=None, min_information_gain=1e-20, counter=0,
-               max_categories=20):
-    """
-    Train a decision tree model.
+from pprint import pprint
 
-    :param data:
-    :param y:
-    :param target_factor:
-    :param max_depth:
-    :param min_samples_split:
-    :param min_information_gain:
-    :param counter:
-    :param max_categories:
-    :return:
-    """
+from sklearn import datasets
+
+from src.decision_tree import DecisionTree
+
+# Import some data to play with:
+iris = datasets.load_iris()
+X = iris.data
+y = iris.target
+
+decision_tree = DecisionTree(min_samples_split=20)
+pprint(decision_tree._run_algorithm(X, y))
