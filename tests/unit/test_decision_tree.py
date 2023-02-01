@@ -27,7 +27,7 @@ class DecisionTreeTestSuite(TestCase):
     def test_get_potential_splits(self):
         expected = {0: [1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5],
                     1: [24.5, 29.0, 33.0, 39.5, 45.5, 55.5, 70.0, 78.5]}
-        potential_splits = get_potential_splits(data=self.mock_data[['person', 'age']].values)
+        potential_splits = get_potential_splits(x=self.mock_data[['person', 'age']].values)
 
         self.assertEqual(expected, potential_splits)
 

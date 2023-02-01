@@ -1,3 +1,5 @@
+from pprint import pprint
+
 import numpy as np
 
 
@@ -31,19 +33,19 @@ def classify_data(labels) -> str:
     return classification
 
 
-def get_potential_splits(data):
+def get_potential_splits(x):
     """
     Find the potential splits in the data. This data should not contain the label and must be all numbers.
 
-    :param data: input data (2D Numpy array).
+    :param x: input data (2D Numpy array).
     :return: dictionary with all potential splits.
     """
     potential_splits = {}
-    n_columns = data.shape[1]
+    n_columns = x.shape[1]
 
     for i in range(n_columns):
         potential_splits[i] = []  # Create list for column.
-        values = data[:, i]  # Fetch all rows from specific column i.
+        values = x[:, i]  # Fetch all rows from specific column i.
         unique_values = np.unique(values)
 
         for j in range(len(unique_values)):
@@ -102,21 +104,21 @@ def calculate_overall_entropy(data_below, data_above) -> float:
     return p_data_below * calculate_entropy(data_below) + p_data_above * calculate_entropy(data_above)
 
 
-def determine_best_split(data):
+def determine_best_split(x):
     """
     Find the best split column and threshold (split value) for the provided data.
 
-    :param data: input data.
+    :param x: input data.
     :return: column and threshold (split value) for best split.
     """
     best_split_column = None
     best_split_value = None
     overall_entropy = np.inf
-    potential_splits = get_potential_splits(data)  # Get the potential splits for the provided data.
+    potential_splits = get_potential_splits(x)  # Get the potential splits for the provided data.
 
     for i in potential_splits:
         for value in potential_splits[i]:
-            data_below, data_above = split_data(data=data, split_column=i, split_threshold=value)
+            data_below, data_above = split_data(data=x, split_column=i, split_threshold=value)
             current_overall_entropy = calculate_overall_entropy(data_below, data_above)
 
             if current_overall_entropy < overall_entropy:
@@ -136,14 +138,69 @@ class DecisionTree:
     def __init__(self, min_samples_split=5, max_depth=5):
         self.min_samples_split = min_samples_split
         self.max_depth = max_depth
+        self.tree = {}
 
-    def _run_algorithm(self, x, y, counter=0):
+    def predict(self, x):
+        """
+        Classifies the given sample(s).
+
+        :param x: input data (2D Numpy array).
+        :return: an array with all answers.
+        """
+        answers = []
+
+        # Ensure input data is in the correct shape (1, n):
+        if len(x.shape) == 1:
+            x = x.reshape(1, x.shape[0])
+
+        for i in range(0, x.shape[0]):
+            answers.append(self._classify(x[i], self.tree))
+
+        return answers
+
+    def fit(self, x, y):
+        """
+        Wrapper for the algorithm function. Saves the output tree to a local dictionary for later use.
+
+        :param x: input data (2D Numpy array).
+        :param y: labels for the input data (2D Numpy array).
+        """
+        self.tree = self._fit_algorithm(x, y)
+
+    def _classify(self, x, tree) -> int:
+        """
+        Recursive algorithm used to classify the given sample.
+
+        :param x: input data.
+        :param tree: decision tree that will be used to make the classification.
+        :return: class (int).
+        """
+        if not tree:
+            raise Exception('Please fit the model before classification.')
+
+        question = list(tree.keys())[0]
+        feature_name, comparison_operator, value = question.split()
+
+        # Ask question:
+        if x[int(feature_name)] <= float(value):
+            answer = tree[question]['yes']
+        else:
+            answer = tree[question]['no']
+
+        # Base case:
+        if not isinstance(answer, dict):
+            return int(answer)
+        # Recursive part:
+        else:
+            return self._classify(x, answer)
+
+    def _fit_algorithm(self, x, y, counter=0):
         """
         Recursive function that runs the decision tree algorithm.
 
         :param x: input data (2D Numpy array).
-        :param y: labes for the input data (2D Numpy array).
-        :param counter: value to save ...
+        :param y: labels for the input data (2D Numpy array).
+        :param counter: value to save amount of times the function was called.
         :return:
         """
         # First join x and y to a new array for easy splitting:
@@ -158,14 +215,13 @@ class DecisionTree:
         else:
             counter += 1
             # Get splits:
-            potential_splits = get_potential_splits(x)
             split_col, split_value = determine_best_split(x)
             # Split the data:
             data_below, data_above = split_data(data, split_col, split_value)
 
             # Instantiate sub-tree:
-            question = f"Column {split_col} <= {split_value}"
-            sub_tree = {question: []}  # Append yes/no answers here.
+            question = f"{split_col} <= {split_value}"
+            sub_tree = {question: {}}  # Stores yes/no answers.
 
             # Then split into data and labels again:
             x_below = data_below[:, :-1]
@@ -174,13 +230,40 @@ class DecisionTree:
             y_above = data_above[:, -1]
 
             # Find answer to question (recursive):
-            yes_answer = self._run_algorithm(x_below, y_below, counter)
-            no_answer = self._run_algorithm(x_above, y_above, counter)
+            yes_answer = self._fit_algorithm(x_below, y_below, counter)
+            no_answer = self._fit_algorithm(x_above, y_above, counter)
 
             if yes_answer == no_answer:
                 sub_tree = yes_answer
             else:
-                sub_tree[question].append(yes_answer)
-                sub_tree[question].append(no_answer)
+                sub_tree[question]['yes'] = yes_answer
+                sub_tree[question]['no'] = no_answer
 
             return sub_tree
+
+    def accuracy(self, x, y):
+        """
+        Test the accuracy of the current decision tree.
+
+        :param x: input data to test with (2D Numpy array).
+        :param y: labels for the input data (2D Numpy array).
+        :return: accuracy score.
+        """
+        if not self.tree:
+            raise Exception('Please fit the model before calculating accuracy.')
+
+        predicted = np.array(self.predict(x))
+        # Create list of predictions that don't match the label:
+        diffs = list(np.array(y - predicted).nonzero()[0])
+
+        # Calculate accuracy by dividing amount wrong by total amount:
+        return 1 - (len(diffs) / len(y))
+
+    def print_tree(self):
+        """
+        Prints the structure of the decision tree using pretty print.
+        """
+        if not self.tree:
+            raise Exception('No tree found to print.')
+
+        pprint(self.tree)
