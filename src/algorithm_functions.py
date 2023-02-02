@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.criterion_functions import entropy, gini
+from src.criterion_functions import entropy, gini_coefficient
 
 
 def check_purity(labels) -> bool:
@@ -95,7 +95,7 @@ def determine_best_split(x, criterion, round=2):
                 current_overall_impurity = entropy(data_below, data_above)
 
             elif criterion == 'gini':
-                current_overall_impurity = gini(x)
+                current_overall_impurity = gini_coefficient(x)
             else:
                 raise Exception("'Please provide a valid criterion ('entropy', 'gini')'")
 

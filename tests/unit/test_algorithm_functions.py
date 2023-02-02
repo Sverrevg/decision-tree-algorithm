@@ -49,6 +49,6 @@ class AlgorithmTestSuite(TestCase):
         self.assertEqual(3, len(data_above))
 
     def test_determine_best_split(self):
-        best_split = determine_best_split(self.mock_data[['person', 'age']].values)
+        best_split = determine_best_split(x=self.mock_data[['person', 'age']].values, criterion='entropy')
 
         self.assertEqual((1, 39.5), best_split)

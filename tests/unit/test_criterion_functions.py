@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy as np
 import pandas as pd
 
-from src.criterion_functions import _calculate_entropy, entropy, gini_impurity
+from src.criterion_functions import _calculate_entropy, entropy, gini_coefficient
 
 
 class CriterionFunctionsTestSuite(TestCase):
@@ -33,6 +33,6 @@ class CriterionFunctionsTestSuite(TestCase):
 
     def test_calculate_gini(self):
         y = np.array([1, 1, 0, 0, 1, 0, 1, 1, 1, 0])
-        gini = gini_impurity(y)
+        gini = gini_coefficient(y)
 
         self.assertAlmostEqual(0.48, gini, 2)

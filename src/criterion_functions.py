@@ -31,7 +31,7 @@ def entropy(data_below, data_above) -> float:
     return p_data_below * _calculate_entropy(data_below) + p_data_above * _calculate_entropy(data_above)
 
 
-def gini(y):
+def gini_coefficient(y):
     _, counts = np.unique(y, return_counts=True)
     probabilities = counts / y.shape[0]
     sq_sum = np.sum(probabilities ** 2)
