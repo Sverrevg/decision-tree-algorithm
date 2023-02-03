@@ -11,9 +11,9 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 print(f"Train size: {len(X_train)}")
 print(f"Test size: {len(X_test)}")
 
-# Gini produces just 1.0 for a tree for some reason:
-decision_tree = DecisionTree(criterion='gini', min_samples_split=3, max_depth=3)
+############ Gini produces just 1.0 for a tree for some reason:
+decision_tree = DecisionTree(criterion='entropy', min_samples_split=3, max_depth=5)
 decision_tree.fit(X_train, y_train)
-decision_tree.print_tree()
+# decision_tree.print_tree()
 # print(f"Predicted class(es): {decision_tree.predict(X)}")
-# print(f"Accuracy: {decision_tree.accuracy(X_test, y_test)}")
+print(f"Accuracy: {decision_tree.accuracy(X_test, y_test)}")

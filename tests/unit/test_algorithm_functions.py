@@ -2,8 +2,8 @@ from unittest import TestCase
 
 import pandas as pd
 
-from src.algorithm_functions import check_purity, get_potential_splits
-from src.decision_tree import classify_data, split_data, determine_best_split
+from src.algorithm_functions import check_purity, get_potential_splits, split_data
+from src.decision_tree import classify_data, determine_best_split
 
 
 class AlgorithmTestSuite(TestCase):
@@ -37,7 +37,7 @@ class AlgorithmTestSuite(TestCase):
     def test_get_potential_splits(self):
         expected = {0: [1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5],
                     1: [24.5, 29.0, 33.0, 39.5, 45.5, 55.5, 70.0, 78.5]}
-        potential_splits = get_potential_splits(x=self.mock_data[['person', 'age']].values)
+        potential_splits = get_potential_splits(x_data=self.mock_data[['person', 'age']].values)
 
         self.assertEqual(expected, potential_splits)
 
@@ -49,6 +49,6 @@ class AlgorithmTestSuite(TestCase):
         self.assertEqual(3, len(data_above))
 
     def test_determine_best_split(self):
-        best_split = determine_best_split(x=self.mock_data[['person', 'age']].values, criterion='entropy')
+        best_split = determine_best_split(x_data=self.mock_data[['person', 'age']].values, criterion='entropy')
 
         self.assertEqual((1, 39.5), best_split)

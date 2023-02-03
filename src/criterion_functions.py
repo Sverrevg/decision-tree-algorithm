@@ -15,7 +15,7 @@ def _calculate_entropy(labels) -> float:
     return float(np.sum(probabilities * - np.log2(probabilities)))
 
 
-def entropy(data_below, data_above) -> float:
+def entropy(data_below: [], data_above: []) -> float:
     """
     Calculates the overall entropy (variance) for the entire provided dataset.
 
@@ -31,9 +31,9 @@ def entropy(data_below, data_above) -> float:
     return p_data_below * _calculate_entropy(data_below) + p_data_above * _calculate_entropy(data_above)
 
 
-def gini_coefficient(y):
-    _, counts = np.unique(y, return_counts=True)
-    probabilities = counts / y.shape[0]
+def gini_coefficient(y_data):
+    _, counts = np.unique(y_data, return_counts=True)
+    probabilities = counts / y_data.shape[0]
     sq_sum = np.sum(probabilities ** 2)
 
     return 1 - sq_sum
