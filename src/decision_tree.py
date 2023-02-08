@@ -1,6 +1,8 @@
 from pprint import pprint
+from typing import Any
 
 import numpy as np
+import numpy.typing as npt
 
 from src.algorithm_functions import split_x_y_data, check_purity, classify_data, determine_best_split
 
@@ -11,31 +13,31 @@ class DecisionTree:
     Based on the guide by Sebastian Mantey.
     """
 
-    def __init__(self, criterion='entropy', min_samples_split=5, max_depth=5):
+    def __init__(self, criterion: str = 'entropy', min_samples_split: int = 5, max_depth: int = 5) -> None:
         self.criterion = criterion
         self.min_samples_split = min_samples_split
         self.max_depth = max_depth
-        self.tree = {}
+        self.tree: dict[Any, Any] = {}
 
-    def predict(self, x_data):
+    def predict(self, x_data: npt.NDArray[np.complex64]) -> npt.NDArray[Any]:
         """
         Classifies the given sample(s).
 
         :param x_data: input data (2D Numpy array).
         :return: an array with all answers.
         """
-        answers = []
+        answers = np.empty(shape=len(x_data))
 
         # Ensure input data is in the correct shape (1, n):
         if len(x_data.shape) == 1:
             x_data = x_data.reshape(1, x_data.shape[0])
 
         for i in range(0, x_data.shape[0]):
-            answers.append(self._classify(x_data[i], self.tree))
+            answers[i] = self._classify(x_data[i], self.tree)
 
         return answers
 
-    def fit(self, x_data, y_data):
+    def fit(self, x_data: npt.NDArray[Any], y_data: npt.NDArray[Any]) -> None:
         """
         Wrapper for the algorithm function. Saves the output tree to a local dictionary for later use.
 
@@ -44,7 +46,7 @@ class DecisionTree:
         """
         self.tree = self._fit_algorithm(x_data, y_data)
 
-    def _classify(self, x_data, tree) -> int:
+    def _classify(self, x_data: npt.NDArray[Any], tree: dict[Any, Any]) -> int:
         """
         Recursive algorithm used to classify the given sample.
 
@@ -52,26 +54,33 @@ class DecisionTree:
         :param tree: decision tree that will be used to make the classification.
         :return: class (int).
         """
+        # Base case:
+        if isinstance(tree, float):
+            return int(tree)
+
         if not tree:
             raise RuntimeError('Please fit the model before classification.')
 
         question = list(tree.keys())[0]
-        feature_name, _, value = question.split()
-
-        # Ask question:
-        if x_data[int(feature_name)] <= float(value):
-            answer = tree[question]['yes']
+        if question == 'endpoint':
+            answer = tree[question]
         else:
-            answer = tree[question]['no']
+            feature_name, _, value = question.split()
 
-        # Base case:
-        if not isinstance(answer, dict):
-            return int(answer)
+            # Ask question:
+            if x_data[int(feature_name)] <= float(value):
+                answer = tree[question]['yes']
+            else:
+                answer = tree[question]['no']
+
+            # # Base case:
+            # if not isinstance(answer, dict):
+            #     return int(answer)
 
         # Recursive part:
         return self._classify(x_data, answer)
 
-    def _fit_algorithm(self, x_data, y_data, counter=0):
+    def _fit_algorithm(self, x_data: npt.NDArray[Any], y_data: npt.NDArray[Any], counter: int = 0) -> dict[Any, Any]:
         """
         Recursive function that runs the decision tree algorithm.
 
@@ -82,7 +91,7 @@ class DecisionTree:
         """
         # Base case:
         if check_purity(y_data) or len(y_data) < self.min_samples_split or counter == self.max_depth:
-            return classify_data(y_data)
+            return {'endpoint': classify_data(y_data)}
 
         # Recursive part of the algorithm:
         counter += 1
@@ -93,7 +102,7 @@ class DecisionTree:
 
         # Instantiate sub-tree:
         question = f"{split_col} <= {split_value}"
-        sub_tree = {question: {}}  # Stores yes/no answers.
+        sub_tree: dict[Any, Any] = {question: {}}  # Stores yes/no answers.
 
         # Find answer to question (recursive):
         yes_answer = self._fit_algorithm(x_below, y_below, counter)
@@ -107,7 +116,7 @@ class DecisionTree:
 
         return sub_tree
 
-    def accuracy(self, x_data, y_data):
+    def accuracy(self, x_data: npt.NDArray[Any], y_data: npt.NDArray[Any]) -> float:
         """
         Test the accuracy of the current decision tree.
 

@@ -1,7 +1,10 @@
+import warnings
+
 import numpy as np
+import numpy.typing as npt
 
 
-def _calculate_entropy(labels) -> float:
+def _calculate_entropy(labels: npt.NDArray[np.complex64]) -> float:
     """
     Calculate the entropy (randomness) for a given label distribution. Lower variance means lower entropy, higher
     variance means higher entropy.
@@ -15,7 +18,7 @@ def _calculate_entropy(labels) -> float:
     return float(np.sum(probabilities * - np.log2(probabilities)))
 
 
-def _calc_gini_coefficient(input_data):
+def _calc_gini_coefficient(input_data: npt.NDArray[np.complex64]) -> npt.NDArray[np.complex64]:
     """
     Calculate gini coefficient using numpy vectorization.
     Source: https://www.statology.org/gini-coefficient-python/
@@ -27,10 +30,13 @@ def _calc_gini_coefficient(input_data):
     for i, value, in enumerate(input_data[:-1], 1):
         total += np.sum(np.abs(value - input_data[i:]))
 
-    return total / (len(input_data) ** 2 * np.mean(input_data))
+    # np.mean can cause runtime warnings which can be suppressed without issue:
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        return np.array(total / (len(input_data) ** 2 * np.mean(input_data)))
 
 
-def entropy(data_below: [], data_above: []) -> float:
+def entropy(data_below: npt.NDArray[np.complex64], data_above: npt.NDArray[np.complex64]) -> float:
     """
     Calculates the overall entropy (variance) for the entire provided dataset.
 
@@ -45,7 +51,7 @@ def entropy(data_below: [], data_above: []) -> float:
     return p_data_below * _calculate_entropy(data_below) + p_data_above * _calculate_entropy(data_above)
 
 
-def gini_coefficient(data_below: [], data_above: []):
+def gini_coefficient(data_below: npt.NDArray[np.complex64], data_above: npt.NDArray[np.complex64]) -> float:
     """
     Calculates the overall gini coefficient for the entire provided dataset.
     :param data_below:
@@ -56,4 +62,4 @@ def gini_coefficient(data_below: [], data_above: []):
     p_data_below = len(data_below) / n_data_points
     p_data_above = len(data_above) / n_data_points
 
-    return p_data_below * _calc_gini_coefficient(data_below) + p_data_above * _calc_gini_coefficient(data_above)
+    return float(p_data_below * _calc_gini_coefficient(data_below) + p_data_above * _calc_gini_coefficient(data_above))
