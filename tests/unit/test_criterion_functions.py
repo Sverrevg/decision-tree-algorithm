@@ -8,6 +8,7 @@ from src.criterion_functions import _calculate_entropy, entropy, gini_coefficien
 
 class CriterionFunctionsTestSuite(TestCase):
     def setUp(self) -> None:
+        np.random.seed(123)  # Set seed.
         self.mock_data = pd.DataFrame({
             'person': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
             'sex': ['Female', 'Male', 'Female', 'Male', 'Female', 'Male', 'Female', 'Male', 'Female', 'Male']
@@ -32,7 +33,8 @@ class CriterionFunctionsTestSuite(TestCase):
         self.assertAlmostEqual(0.690, overall_entropy, 3)
 
     def test_calculate_gini(self):
-        y = np.array([1, 1, 0, 0, 1, 0, 1, 1, 1, 0])
-        gini = gini_coefficient(y)
+        x = np.random.rand(500)
+        y = np.random.rand(500)
+        gini = gini_coefficient(x, y)
 
-        self.assertAlmostEqual(0.48, gini, 2)
+        self.assertAlmostEqual(0.33, gini, 2)

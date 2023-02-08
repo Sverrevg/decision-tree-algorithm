@@ -121,12 +121,12 @@ def determine_best_split(x_data, criterion, rounding_factor=2):
     for column, values in potential_splits.items():
         # Loop through values in column:
         for value in values:
+            x_below, x_above = split_data(data=x_data, split_column=column, split_threshold=value)
             if criterion == 'entropy':
-                x_below, x_above = split_data(data=x_data, split_column=column, split_threshold=value)
                 current_overall_impurity = entropy(x_below, x_above)
 
             elif criterion == 'gini':
-                current_overall_impurity = gini_coefficient(x_data)
+                current_overall_impurity = gini_coefficient(x_below, x_above)
             else:
                 raise ValueError("'Please provide a valid criterion ('entropy', 'gini')'")
 
