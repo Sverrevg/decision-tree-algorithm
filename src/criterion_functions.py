@@ -2,6 +2,7 @@ import warnings
 
 import numpy as np
 import numpy.typing as npt
+from numba import njit
 
 
 def _calculate_entropy(labels: npt.NDArray[np.complex64]) -> float:

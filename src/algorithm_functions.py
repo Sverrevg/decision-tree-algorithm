@@ -2,6 +2,7 @@ from typing import Any
 
 import numpy as np
 import numpy.typing as npt
+from numba import njit
 
 from src.criterion_functions import entropy, gini_coefficient
 
@@ -36,6 +37,7 @@ def classify_data(labels: npt.NDArray[Any]) -> float:
     return float(classification)
 
 
+@njit
 def get_potential_splits(x_data: npt.NDArray[Any]) -> dict[int, npt.NDArray[Any]]:
     """
     Find the potential splits in the data. This data should not contain the label and must be all numbers.
