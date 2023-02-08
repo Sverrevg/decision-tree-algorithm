@@ -24,8 +24,8 @@ def _calc_gini_coefficient(input_data):
     :return: Gini coefficient (float).
     """
     total = 0
-    for i, xi, in enumerate(input_data[:-1], 1):
-        total += np.sum(np.abs(xi - input_data[i:]))
+    for i, value, in enumerate(input_data[:-1], 1):
+        total += np.sum(np.abs(value - input_data[i:]))
 
     return total / (len(input_data) ** 2 * np.mean(input_data))
 
