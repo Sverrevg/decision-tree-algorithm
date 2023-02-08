@@ -12,7 +12,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 print(f"Train size: {len(X_train)}")
 print(f"Test size: {len(X_test)}")
 
-decision_tree = DecisionTree(min_samples_split=2, max_depth=5)
+decision_tree = DecisionTree(min_samples_split=8, max_depth=4, criterion='gini')
 decision_tree.fit(X_train, y_train)
 # decision_tree.print_tree()
 # print(f"Predicted class(es): {decision_tree.predict(X)}")
